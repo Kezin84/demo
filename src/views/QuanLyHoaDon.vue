@@ -214,8 +214,8 @@ export default {
         trangThai: "", // Mua / Trả / Mua & Trả
         thanhToan: "", // Tiền mặt / Chuyển khoản / Nợ
       },
-      apiUrl:
-        "https://script.google.com/macros/s/AKfycbz_vsTrvAjmYq51LTtQhe-nkdOzbMQcpMGslSU8tuSObycF9l5HT7cqYKhJ11uqrpL8/exec",
+     apiUrl: "/api/gas-proxy",
+
     };
   },
 
