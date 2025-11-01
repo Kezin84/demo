@@ -1,7 +1,10 @@
 <template>
   <div id="app">
-    <!-- SIDEBAR CỐ ĐỊNH BÊN TRÁI -->
-    <nav class="sidebar">
+    <!-- 🌐 Nút mở menu khi màn hình nhỏ -->
+    <button class="btn-toggle" @click="isOpen = !isOpen">☰</button>
+
+    <!-- 🧭 SIDEBAR -->
+    <nav class="sidebar" :class="{ open: isOpen }">
       <div class="sidebar-header">
         <h3 class="fw-bold text-primary text-center">🛒 TECHDY ADMIN</h3>
       </div>
@@ -18,14 +21,19 @@
       </div>
     </nav>
 
-    <!-- NỘI DUNG CHÍNH -->
-    <main class="main-content">
+    <!-- 📄 NỘI DUNG CHÍNH -->
+    <main class="main-content" @click="isOpen = false">
       <div class="content-wrapper">
         <router-view />
       </div>
     </main>
   </div>
 </template>
+
+<script setup>
+import { ref } from "vue";
+const isOpen = ref(false);
+</script>
 
 <style scoped>
 /* ======================
@@ -41,7 +49,7 @@
 }
 
 /* ======================
-   📁 SIDEBAR CỐ ĐỊNH
+   📁 SIDEBAR
 ====================== */
 .sidebar {
   position: fixed;
@@ -57,6 +65,7 @@
   padding: 1.2rem 1rem;
   z-index: 1000;
   overflow-y: auto;
+  transition: all 0.3s ease;
 }
 
 .sidebar-header {
@@ -108,7 +117,7 @@
    🧾 MAIN CONTENT
 ====================== */
 .main-content {
-  margin-left: 240px; /* Chừa chỗ cho sidebar */
+  margin-left: 240px;
   flex: 1;
   width: calc(100vw - 240px);
   height: 100vh;
@@ -119,12 +128,11 @@
   flex-direction: column;
 }
 
-/* ✅ WRAPPER GIÚP FULL CHIỀU NGANG */
 .content-wrapper {
   width: 100%;
   height: 100%;
-  padding: 0;        /* Xóa mọi padding */
-  margin: 0;         /* Xóa margin trắng */
+  padding: 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -141,8 +149,10 @@
 }
 
 /* ======================
-   💻 RESPONSIVE
+   📱 RESPONSIVE
 ====================== */
+
+/* 💻 Tablet */
 @media (max-width: 992px) {
   .sidebar {
     width: 200px;
@@ -152,48 +162,63 @@
     width: calc(100vw - 200px);
   }
 }
+
+/* 📱 Mobile ngang */
 @media (max-width: 768px) {
   .sidebar {
-    position: relative;
-    width: 100%;
-    height: auto;
-    border-right: none;
-    border-bottom: 1px solid #ddd;
-    overflow-x: auto;
+    position: fixed;
+    left: -240px;
+    top: 0;
+    height: 100%;
+    transition: left 0.3s ease;
+  }
+  .sidebar.open {
+    left: 0;
   }
   .main-content {
     margin-left: 0;
     width: 100%;
-    height: calc(100vh - 60px);
   }
-  .nav-item {
-    flex: 1;
-    justify-content: center;
+  .btn-toggle {
+    display: block;
   }
 }
-/* 🧱 Force toàn bộ nội dung trong router-view full width */
+
+/* 📲 Điện thoại nhỏ (≤576px) */
+@media (max-width: 576px) {
+  .btn-toggle {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 0.5rem 0.7rem;
+    border-radius: 6px;
+    z-index: 1100;
+    font-size: 1.2rem;
+  }
+  .sidebar {
+    width: 75%;
+    max-width: 250px;
+  }
+  .nav-item {
+    font-size: 1rem;
+    padding: 0.8rem 1rem;
+  }
+  .sidebar-header h3 {
+    font-size: 1rem;
+  }
+}
+
+/* 🧱 Force router-view full width */
 .main-content,
 .main-content > .content-wrapper,
 .main-content > * {
   width: 100% !important;
   max-width: none !important;
   margin: 0 !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
+  padding: 0 !important;
   box-sizing: border-box;
 }
-
-/* Cho các card / bảng / form kéo full màn hình */
-.main-content .container,
-.main-content .container-fluid,
-.main-content .row,
-.main-content .card,
-.main-content .table-responsive {
-  width: 100% !important;
-  max-width: none !important;
-  margin: 0 !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-}
-
 </style>
