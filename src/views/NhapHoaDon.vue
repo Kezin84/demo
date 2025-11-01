@@ -51,7 +51,7 @@
 
             <div class="mb-3">
               <label class="form-label">NỢ CŨ</label>
-              <input v-model.number="noCu" type="number" class="form-control form-control-sm" />
+              <input :value="formatNum(noCu)" @input="formatNumInput($event, 'noCu')" class="form-control form-control-sm" />
             </div>
 
             <div>
@@ -68,13 +68,18 @@
           <div class="panel__header">FORM NHẬP HÀNG</div>
           <div class="panel__body">
             <div class="mb-3">
-              <label class="form-label">MÃ HÀNG</label>
-              <input list="hangOptions" v-model="maHang" @change="onHangChange"
-                class="form-control form-control-sm" placeholder="Chọn hoặc nhập..." />
-              <datalist id="hangOptions">
-                <option v-for="hh in dsHangHoa" :key="hh.ma_hang" :value="hh.ma_hang" />
-              </datalist>
-            </div>
+  <label class="form-label">MÃ HÀNG</label>
+  <div class="input-group input-group-sm">
+    <input list="hangOptions" v-model="maHang" @change="onHangChange"
+      class="form-control form-control-sm" placeholder="Chọn hoặc nhập..." />
+    <button class="btn btn-outline-primary" type="button" @click="tuSinhMaHang">
+      🔄 Tạo mã
+    </button>
+  </div>
+  <datalist id="hangOptions">
+    <option v-for="hh in dsHangHoa" :key="hh.ma_hang" :value="hh.ma_hang" />
+  </datalist>
+</div>
 
        <div class="mb-3">
   <label class="form-label">TÊN HÀNG</label>
@@ -92,14 +97,23 @@
               <input v-model="danhMuc" class="form-control form-control-sm" placeholder="Nhập danh mục..." />
             </div>
 
-            <div class="mb-3">
+        <div class="mb-3">
   <label class="form-label">MÃ NHÀ CUNG CẤP</label>
-  <input list="maNccList" v-model="maNcc" @change="onNccChange"
-         class="form-control form-control-sm" placeholder="VD: NCC01" />
+  <div class="input-group input-group-sm">
+    <input
+      list="maNccList"
+      v-model="maNcc"
+      @change="onNccChange"
+      class="form-control form-control-sm"
+      placeholder="VD: NCC01"
+    />
+    <button class="btn btn-outline-secondary" type="button" @click="taoMaNCC">🧩TẠO MÃ NCC</button>
+  </div>
   <datalist id="maNccList">
     <option v-for="ncc in dsNhaCungCap" :key="ncc.ma_nha_cung_cap" :value="ncc.ma_nha_cung_cap" />
   </datalist>
 </div>
+
 
             <div class="mb-3">
               <label class="form-label">NHÀ CUNG CẤP</label>
@@ -132,15 +146,25 @@
                 <input v-model.number="soLuong" type="number" class="form-control form-control-sm" />
               </div>
             </div>
+<div class="row g-3 mb-1">
+  <div class="col-6">
+    <label class="form-label">GIÁ GỐC</label>
+    <input :value="formatNum(giaGoc)" @input="formatNumInput($event, 'giaGoc')"class="form-control form-control-sm"  />
+  </div>
+  <div class="col-6">
+    <label class="form-label">%</label>
+   <input v-model.number="phanTram" type="number" class="form-control form-control-sm" @input="capNhatGiaNhapTheoGiaBan" />
 
+  </div>
+</div>
             <div class="row g-3 mb-1">
               <div class="col-6">
                 <label class="form-label">ĐƠN GIÁ</label>
-                <input v-model.number="donGia" type="number" class="form-control form-control-sm" />
+                <input :value="formatNum(donGia)" @input="formatNumInput($event, 'donGia')" class="form-control form-control-sm" />
               </div>
               <div class="col-6">
                 <label class="form-label">GIẢM GIÁ</label>
-                <input v-model.number="giamGia" type="number" class="form-control form-control-sm" />
+                <input :value="formatNum(giamGia)" @input="formatNumInput($event, 'giamGia')" class="form-control form-control-sm" />
               </div>
             </div>
 
@@ -237,7 +261,7 @@
               </div>
               <div class="mb-2" v-if="hinhThucThanhToan!=='Nợ'">
                 <label class="form-label mb-1">SỐ TIỀN KHÁCH TRẢ</label>
-                <input v-model.number="tienThanhToan" type="number" class="form-control form-control-sm" />
+                <input :value="formatNum(tienThanhToan)" @input="formatNumInput($event, 'tienThanhToan')" class="form-control form-control-sm" />
               </div>
               <button class="btn btn-warning w-100 mt-2" @click="xacNhanThanhToan">XÁC NHẬN THANH TOÁN</button>
             </div>
@@ -347,7 +371,8 @@ export default {
       apiUrl:"https://script.google.com/macros/s/AKfycbz_vsTrvAjmYq51LTtQhe-nkdOzbMQcpMGslSU8tuSObycF9l5HT7cqYKhJ11uqrpL8/exec",
       maHoaDon:"", soHoaDon: "", maKhach: "",tenKhach:"",sdt:"",diaChiKhach: "",noCu:0,ghiChuKhach:"",
       dsKhachHang:[],dsHangHoa:[],dsNhaCungCap:[],
-      maHang:"",tenHang:"", danhMuc: "",dvt:"",size:"",soLuongKho:0,soLuong:0,donGia:0,giamGia:0,
+      maHang:"",tenHang:"", danhMuc: "",dvt:"",size:"",soLuongKho:0,soLuong:0,donGia:0,giamGia:0,giaGoc: 0,           // 🟢 thêm dòng này
+    phanTram: 0,         // 🟢 thêm dòng này
       maNcc:"",nhaCungCap:"",diaChiNcc:"",
       khachTra:0,hinhThuc:"",ghiChuDon:"",ghiChuHang:"",chiTiet:[],
       tienThanhToan:0,hinhThucThanhToan:"",daXacNhanThanhToan:false,
@@ -361,26 +386,87 @@ export default {
     tongGiamGia(){return this.chiTiet.reduce((s,i)=>s+(Number(i.giamGia)||0),0);},
     tongCong(){return this.tamTinh-this.hangTra+Number(this.noCu||0)-Number(this.khachTra||0);}
   },
- watch: {
-  tenKhach() {
-    this.tuSinhMaKhach();
-  },
-  diaChiKhach() {
-    this.tuSinhMaKhach();
-  },
-  tenHang() {
-    this.tuSinhMaHang();
-  },
-  maNcc() {
-    this.tuSinhMaHang();
+
+
+
+  methods:{
+
+
+formatNumInput(e, field) {
+  let val = e.target.value.replace(/[^\d]/g, "");
+  this[field] = val ? Number(val) : 0;
+  e.target.value = new Intl.NumberFormat().format(this[field]);
+
+  // ✅ Khi người dùng nhập "đơn giá" thì tự động cập nhật "giá gốc" theo %
+  if (field === "donGia") {
+    this.capNhatGiaNhapTheoGiaBan();
+  }
+}
+
+,
+ capNhatGiaNhapTheoGiaBan() {
+  const donGia = Number(this.donGia) || 0;
+  const phanTram = Number(this.phanTram) || 0;
+
+  if (donGia > 0 && phanTram >= 0) {
+    // Giá gốc = giá bán / (1 + % lợi nhuận)
+    let giaGoc = donGia / (1 + phanTram / 100);
+
+    // ✅ Làm tròn xuống đến đơn vị 1.000 đồng (bỏ phần thập phân)
+    giaGoc = Math.floor(giaGoc);
+
+    this.giaGoc = giaGoc;
+  } else {
+    this.giaGoc = 0;
   }
 },
 
-  methods:{
     formatDateTimeVN() {
   const now = new Date();
   const pad = n => String(n).padStart(2, "0");
   return `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())} ${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
+},
+  capNhatGiaBanTheoPhanTram() {
+    if (this.giaGoc > 0 && this.phanTram >= 0) {
+      let giaMoi = this.giaGoc * (1 + this.phanTram / 100);
+
+      // Chỉ làm tròn đơn giá lên nghìn kế tiếp
+      const remainder = giaMoi % 1000;
+      if (remainder > 0) giaMoi += 1000 - remainder;
+
+      this.donGia = giaMoi;
+    }
+  },
+
+
+capNhatNguocTuDonGia() {
+  if (this.donGia > 0 && this.phanTram > 0 && !this.giaGoc) {
+    this.giaGoc = Math.round(this.donGia / (1 + this.phanTram / 100));
+  } else if (this.donGia > 0 && this.giaGoc > 0) {
+    this.phanTram = (((this.donGia - this.giaGoc) / this.giaGoc) * 100).toFixed(1);
+  }
+},
+
+taoMaNCC() {
+  const ten = (this.nhaCungCap || "").trim();
+  const diaChi = (this.diaChiNcc || "").trim();
+  if (!ten || !diaChi) {
+    alert("⚠️ Vui lòng nhập tên và địa chỉ nhà cung cấp trước khi tạo mã!");
+    return;
+  }
+
+  const getInitials = (str) =>
+    str
+      .normalize("NFD") // bỏ dấu tiếng Việt
+      .replace(/[\u0300-\u036f]/g, "")
+      .split(/\s+/)
+      .map((w) => w[0]?.toUpperCase() || "")
+      .join("");
+
+  const tenPart = getInitials(ten);
+  const diaChiPart = getInitials(diaChi);
+
+  this.maNcc = (tenPart + diaChiPart).toUpperCase().slice(0, 8);
 },
 
      tuSinhMaKhach() {
@@ -403,20 +489,52 @@ export default {
 
     this.maKhach = initialsTen + initialsDiaChi;
   },
-    tuSinhMaHang() {
-    if (!this.tenHang || !this.maNcc) return;
+ tuSinhMaHang() {
+  if (!this.nhaCungCap || !this.tenHang) return;
 
-    const removeAccents = (str) =>
-      str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const removeAccents = (str) =>
+    str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-    const initialsTenHang = removeAccents(this.tenHang)
-      .split(/\s+/)
-      .filter(w => w.trim() !== "")
-      .map(w => w[0].toUpperCase())
-      .join("");
+  // 🧩 [1] Chữ cái đầu NCC (viết hoa, bỏ dấu)
+  const initials = removeAccents(this.nhaCungCap)
+    .split(/\s+/)
+    .filter(w => w)
+    .map(w => w[0].toUpperCase())
+    .join("");
+  const phan1 = initials || "XX";
 
-    this.maHang = `${initialsTenHang}-${this.maNcc.toUpperCase()}`;
-  },
+  // 🧩 [2] Hai số cuối của năm
+  const phan2 = new Date().getFullYear().toString().slice(-2);
+
+  // 🧩 [3] Giá nhập 1 cái × 2 (bỏ 3 số cuối)
+  const giaNhap = Number(this.giaGoc) || 0;
+  const bo000 = Math.floor(giaNhap / 1000);
+  const phan3 = bo000 * 2;
+
+  // 🧩 [4] Không có ĐVT → bỏ qua
+  const phan4 = "";
+
+  // 🧩 [5] Mã giá bán ẩn
+  const loiNhuan = Number(this.phanTram) || 0;
+  let giaBan = giaNhap * (1 + loiNhuan / 100);
+
+  // Làm tròn lên nghìn kế tiếp
+  const remainder = giaBan % 1000;
+  if (remainder > 0) giaBan += 1000 - remainder;
+
+  const base = Math.floor(giaBan / 1000);
+  const len = base.toString().length;
+  const cong = len === 1 ? 1 : len === 2 ? 10 : len === 3 ? 100 : 1000;
+
+  const random = Math.floor(Math.random() * 9) + 1;
+  const phan5 = random.toString() + (base + cong).toString();
+
+  // ✅ Mã hàng cuối cùng
+  this.maHang = `${phan1}${phan2}${phan3}${phan4}${phan5}`;
+},
+
+
+
   onNccChange() {
   const input = (this.maNcc || this.nhaCungCap || "").trim().toLowerCase();
 
@@ -450,7 +568,7 @@ export default {
   }
 
   // ✅ Cập nhật lại mã hàng vì mã hàng phụ thuộc vào mã NCC
-  this.tuSinhMaHang();
+
 },
 
  onTenHangChange() {
@@ -488,7 +606,7 @@ export default {
     this.diaChiNcc = "";
 
     // Tự sinh mã mới dựa trên tên hàng + mã NCC
-    this.tuSinhMaHang();
+   
   }
 },
 
@@ -644,13 +762,18 @@ async onKhachChange() {
       const hh=this.dsHangHoa.find(h=>h.ma_hang===this.maHang);
       if(hh){
         this.tenHang=hh.ten_hang||"";this.dvt=hh.dvt||"";this.size=hh.size||"";
-        this.soLuongKho=Number(hh.so_luong_kho)||0;this.donGia=Number(hh.don_gia)||0;
+        this.soLuongKho=Number(hh.so_luong_kho)||0;this.donGia=Number(hh.don_gia)||0;this.giaGoc = Number(hh.gia_goc) || 0;
+
         this.maNcc=hh.ma_nha_cung_cap||"";this.danhMuc=hh.danh_muc||"";
         const ncc=this.dsNhaCungCap.find(n=>n.ma_nha_cung_cap===this.maNcc);
-        this.nhaCungCap=ncc?ncc.ten_nha_cung_cap:"";this.diaChiNcc=ncc?ncc.dia_chi||"":""; this.tuSinhMaHang();
+        this.nhaCungCap=ncc?ncc.ten_nha_cung_cap:"";this.diaChiNcc=ncc?ncc.dia_chi||"":""; 
       }
     },
    themHang() {
+    if (!this.giaGoc && this.phanTram) {
+  this.giaGoc = Math.round(this.donGia / (1 + this.phanTram / 100));
+}
+
   if (!this.tenHang || this.soLuong <= 0)
     return alert("⚠️ Nhập hàng hợp lệ!");
 
@@ -679,8 +802,10 @@ async onKhachChange() {
     dvt: this.dvt || "N/A",
     size: this.size || "N/A",
     nhaCungCap: this.nhaCungCap || "",
+      soLuongKho: Number(this.soLuongKho) || 0,  // ✅ thêm dòng này
     soLuong,
     donGia,
+     giaGoc: this.giaGoc || 0,   // 🟢 thêm dòng này
     giamGia,
     thanhTien,
     trangThai,
@@ -721,6 +846,7 @@ traHang() {
     nhaCungCap: this.nhaCungCap || "",
     soLuong,
     donGia,
+     giaGoc: this.giaGoc || 0,   // 🟢 thêm dòng này
     giamGia,
     thanhTien,
     trangThai,
@@ -807,6 +933,9 @@ xoaTuModal() {
       this.maHang="";this.tenHang="";this.dvt="";this.size="";
       this.soLuong=0;this.donGia=0;this.giamGia=0;
       this.maNcc="";this.nhaCungCap="";this.diaChiNcc="";this.danhMuc="";this.ghiChuHang="";
+      this.giaGoc = 0;
+this.phanTram = 0;
+
     },
     chonHinhThuc(opt){this.hinhThucThanhToan=opt;if(opt==="Nợ")this.tienThanhToan=0;},
     xacNhanThanhToan(){
@@ -868,7 +997,9 @@ const data = {
     danhMuc: item.danhMuc || "",
     size: item.size || "",
     dvt: item.dvt || "",
+     soLuongKho: Number(item.soLuongKho) || 0,  // ✅ thêm dòng này
     soLuong: Number(item.soLuong) || 0,
+      giaGoc: Number(item.giaGoc) || 0,   // 🟢 thêm dòng này
     donGia: Number(item.donGia) || 0,
     giamGia: Number(item.giamGia) || 0,
     thanhTien: Number(item.thanhTien) || 0,
@@ -896,6 +1027,18 @@ const data = {
   this.genMaHoaDon();
 }
 ,
+
+watch: {
+  donGia() {
+    this.capNhatGiaNhapTheoGiaBan(); // ✅ đơn giá → tính lại giá gốc
+  },
+  phanTram() {
+    this.capNhatGiaNhapTheoGiaBan(); // ✅ đổi % → tính lại giá gốc
+  },
+  giaGoc() {
+    this.capNhatGiaBanTheoPhanTram(); // ✅ nhập giá gốc → tính ra đơn giá (làm tròn)
+  },
+},
 
 
 
@@ -1311,7 +1454,10 @@ tbody{
 
   },
   mounted(){this.genMaHoaDon();this.loadKhachHang();this.loadHangHoa();}
+
+  
 };
+
 </script>
 
 <style scoped>

@@ -458,9 +458,12 @@ const tableRows = computed(() => {
   const chiTiet = data.value.hoa_don_chi_tiet || [];
   const hangHoa = data.value.hang_hoa || [];
 
-  // Map mã hàng → giá gốc
+  // 🧹 Hàm ép số an toàn
+  const clean = (v) => Number(String(v || "0").replace(/[^\d.-]/g, ""));
+
+  // Map mã hàng → giá gốc (đã ép số)
   const mapGiaGoc = Object.fromEntries(
-    hangHoa.map((h) => [String(h.ma_hang || "").trim(), Number(h.gia_goc) || 0])
+    hangHoa.map((h) => [String(h.ma_hang || "").trim(), clean(h.gia_goc)])
   );
 
   // Gom chi tiết theo mã hóa đơn
@@ -471,28 +474,30 @@ const tableRows = computed(() => {
     chiTietByHD[maHD].push(c);
   });
 
-  // Tính lãi từng hóa đơn
+  // 🔥 Tính lãi từng hóa đơn
   return hdTong
     .filter((h) => inRange(h.ngay_tao_duong_lich))
     .map((hd) => {
       const maHD = hd.ma_hoa_don?.trim();
       const dsChiTiet = chiTietByHD[maHD] || [];
 
-      // Xác định trạng thái hóa đơn
-      const trangThai = (hd.trang_thai || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      const trangThai = (hd.trang_thai || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
 
-      // Tính tổng lãi gốc (chưa xét âm dương)
+      // ✅ Tính đúng: (đơn_giá_bán - giá_gốc) * SL
       const tongLaiGoc = dsChiTiet.reduce((sum, item) => {
-        const donGia = Number(item.don_gia) || 0;
-        const soLuong = Number(item.so_luong) || 0;
+        const donGia = clean(item.don_gia);
+        const soLuong = clean(item.so_luong);
         const maHang = String(item.ma_hang || "").trim();
         const giaGoc = mapGiaGoc[maHang] || 0;
         return sum + (donGia - giaGoc) * soLuong;
       }, 0);
 
-      // Nếu hóa đơn là "Trả" thì đảo dấu
       const isReturn = ["tra", "khach tra", "hang tra", "tra hang"].includes(trangThai);
       const lai_hoa_don = isReturn ? -tongLaiGoc : tongLaiGoc;
+      console.table(data.value.hoa_don_chi_tiet.filter(r => r.ma_hoa_don?.includes("HD20251030214359")))
 
       return { ...hd, lai_hoa_don };
     });

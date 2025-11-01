@@ -51,7 +51,13 @@
         </div>
         <div class="col-md-2">
           <label class="form-label">Công nợ</label>
-          <input v-model.number="form.congNo" type="number" class="form-control" />
+         <input
+  type="text"
+  class="form-control"
+  :value="formatView(form.congNo)"
+  @input="formatLive($event, 'congNo', 'form')"
+  placeholder="Công nợ"
+/>
         </div>
 
         <div class="col-md-2">
@@ -97,19 +103,24 @@
       <h5 class="fw-bold mb-3">📦 Nhập hàng</h5>
       <div class="row g-3 align-items-end">
   <div class="col-md-3">
-  <label class="form-label">MÃ HÀNG</label>
+  <label class="form-label fw-bold">MÃ HÀNG (Tự sinh hoặc chọn)</label>
   <input
     list="maHangList"
     v-model="hang.maHang"
     @change="onHangChange"
-    class="form-control form-control-sm"
-    placeholder="Chọn hoặc nhập..."
+    class="form-control form-control-sm fw-bold text-primary"
+    placeholder="Chọn mã cũ hoặc tự sinh"
   />
   <datalist id="maHangList">
-    <option v-for="hh in dsHangHoa" :key="hh.ma_hang" :value="hh.ma_hang" />
+    <option
+      v-for="hh in getHangHoaTheoNCC()"
+      :key="hh.ma_hang"
+      :value="hh.ma_hang"
+    />
   </datalist>
 </div>
-  <div class="col-md-3">
+
+<div class="col-md-3">
   <label class="form-label">TÊN HÀNG</label>
   <input
     list="tenHangList"
@@ -119,9 +130,61 @@
     placeholder="Nhập hoặc chọn hàng..."
   />
   <datalist id="tenHangList">
-    <option v-for="hh in dsHangHoa" :key="hh.ten_hang" :value="hh.ten_hang" />
+    <option
+      v-for="hh in getHangHoaTheoNCC()"
+      :key="hh.ten_hang"
+      :value="hh.ten_hang"
+    />
   </datalist>
 </div>
+<div class="col-md-2 d-flex align-items-center">
+  <div class="form-check mt-4">
+    <input
+      class="form-check-input"
+      type="checkbox"
+      id="nhapTheoLo"
+      v-model="hang.nhapTheoLo"
+    />
+    <label class="form-check-label" for="nhapTheoLo">Nhập theo lô</label>
+  </div>
+</div>
+<template v-if="hang.nhapTheoLo">
+  <div class="col-md-3">
+  <label class="form-label">Giá 1 lô</label>
+  <input
+    type="text"
+    class="form-control"
+    :value="formatView(hang.giaLo)"
+    @input="formatLive($event, 'giaLo', 'hang'); tinhTheoLo()"  
+    placeholder="VD: 420000"
+  />
+</div>
+
+<!-- Số lô -->
+<div class="col-md-2">
+  <label class="form-label">Số lô</label>
+  <input
+    type="number"
+    v-model.number="hang.soLo"
+    @input="tinhTheoLo" 
+    class="form-control"
+    placeholder="VD: 10"
+  />
+</div>
+
+<!-- Số cái / 1 lô -->
+<div class="col-md-2">
+  <label class="form-label">Số cái / 1 lô</label>
+  <input
+    type="number"
+    v-model.number="hang.soCaiMotLo"
+    @input="tinhTheoLo"  
+    class="form-control"
+    placeholder="VD: 4"
+  />
+</div>
+</template>
+
         <div class="col-md-3">
           <label class="form-label">SL</label>
           <input v-model.number="hang.soLuong" type="number" class="form-control" />
@@ -140,11 +203,34 @@
         </div>
         <div class="col-md-3">
           <label class="form-label">Giá nhập</label>
-          <input v-model.number="hang.giaNhap" type="number" class="form-control" />
+          <input
+  type="text"
+  class="form-control"
+  :value="formatView(hang.giaNhap)"
+  @input="formatLive($event, 'giaNhap', 'hang')"
+  placeholder="Giá nhập"
+/>
         </div>
         <div class="col-md-3">
+  <label class="form-label">Lợi nhuận (%)</label>
+  <input
+    v-model.number="hang.loiNhuan"
+    type="number"
+    class="form-control"
+    placeholder="% lời"
+    @change="capNhatGiaBanTuPhanTram"
+  />
+</div>
+
+        <div class="col-md-3">
           <label class="form-label">Đơn giá (bán)</label>
-          <input v-model.number="hang.donGia" type="number" class="form-control" />
+          <input
+  type="text"
+  class="form-control"
+  :value="formatView(hang.donGia)"
+  @input="formatLive($event, 'donGia', 'hang')"
+  placeholder="Giá bán"
+/>
         </div>
         <div class="col-md-2">
   <label class="form-label">GHI CHÚ NHẬP HÀNG</label>
@@ -258,7 +344,14 @@
 
       <div v-if="['Tiền mặt', 'Chuyển khoản'].includes(thanhToan.hinhThuc) && !form.daThanhToan" class="mb-3">
         <label class="form-label fw-bold">💵 Số tiền trả NCC</label>
-        <input v-model.number="thanhToan.soTien" type="number" class="form-control" placeholder="Nhập số tiền thanh toán" />
+        <input
+  type="text"
+  class="form-control"
+  :value="formatView(thanhToan.soTien)"
+  @input="formatLive($event, 'soTien', 'thanhToan')"
+  placeholder="Nhập số tiền thanh toán"
+/>
+
       </div>
 
       <div class="d-flex gap-3">
@@ -334,6 +427,42 @@ async mounted() {
   await this.loadDanhSach();
 },
   methods: {
+    formatLive(e, field, obj) {
+  // Xóa ký tự không phải số
+  const raw = e.target.value.replace(/[^\d]/g, '');
+  const num = Number(raw || 0);
+  // Cập nhật model (ví dụ this.hang.giaNhap)
+  this[obj][field] = num;
+  // Format lại hiển thị
+  e.target.value = num ? num.toLocaleString('vi-VN') : '';
+},
+formatView(n) {
+  return n ? n.toLocaleString('vi-VN') : '';
+},
+lamTronLenNghin(so) {
+  if (!so) return 0;
+  const remainder = so % 1000;
+  return remainder === 0 ? so : so + (1000 - remainder);
+},
+
+tinhTheoLo() {
+  if (this.hang.nhapTheoLo && this.hang.giaLo && this.hang.soLo && this.hang.soCaiMotLo) {
+    // Tính tổng số lượng
+    this.hang.soLuong = this.hang.soLo * this.hang.soCaiMotLo;
+
+    // Tính giá nhập mỗi cái (đúng giá thực tế, KHÔNG làm tròn)
+    const giaMotCai = this.hang.giaLo / this.hang.soCaiMotLo;
+
+    this.hang.giaNhap = giaMotCai;
+
+    // ✅ Cập nhật lại giá bán theo % + mã hàng
+    this.capNhatGiaBanTuPhanTram();
+    this.capNhatMaHang();
+  }
+},
+
+
+
     async loadDanhSach() {
     try {
       const [resNCC, resHang] = await Promise.all([
@@ -372,6 +501,13 @@ onNccChange() {
 
 
 
+getHangHoaTheoNCC() {
+  const maNCC = (this.form.maNCC || "").trim().toUpperCase();
+  if (!maNCC) return this.dsHangHoa; // nếu chưa có NCC thì trả tất cả
+
+  // ✅ chỉ lấy những hàng hóa có cùng mã NCC
+  return this.dsHangHoa.filter(h => (h.ma_nha_cung_cap || "").toUpperCase() === maNCC);
+},
 
 onHangChange() {
   const input = (this.hang.maHang || "").trim().toLowerCase();
@@ -534,33 +670,138 @@ async getHangInfo() {
 },
 
 
-   genSoHoaDon() {
+async genSoHoaDon() {
   const ma = (this.form.maNCC || "").trim().toUpperCase();
   if (!ma) {
     this.form.soHD = "";
     return;
   }
-  if (!this.hoaDonNCC[ma]) this.hoaDonNCC[ma] = 0;
-  this.hoaDonNCC[ma] += 1;
-  this.form.soHD = `${ma}${this.hoaDonNCC[ma]}`;
-},
-  capNhatMaHang() {
-  const tenHang = this.removeAccents(this.hang.tenHang || "").trim();
-  const maNCC = (this.form.maNCC || "").trim().toUpperCase();
-  if (!tenHang || !maNCC) {
-    this.hang.maHang = "";
-    return;
-  }
 
-  const prefix = tenHang
-    .split(/\s+/)
-    .filter(w => w.trim() !== "")
+  try {
+    // 🧩 Lấy danh sách hóa đơn tổng từ Sheet
+    const res = await fetch(`${this.apiUrl}?action=getHoaDonTong`);
+    const data = await res.json();
+
+    // ✅ Lọc các HĐ có cùng mã NCC
+    const hoaDonCungNCC = data.filter(hd => 
+      (hd.ma_nha_cung_cap || "").toUpperCase() === ma
+    );
+
+    // ✅ Tìm STT lớn nhất trong danh sách cũ
+    let stt = 1;
+    if (hoaDonCungNCC.length > 0) {
+      const soCuoi = hoaDonCungNCC.map(hd => {
+        const match = (hd.so_hoa_don || "").match(/\d+$/);
+        return match ? parseInt(match[0], 10) : 0;
+      });
+      stt = Math.max(...soCuoi) + 1;
+    }
+
+    // ✅ Format lại STT 2 chữ số (01, 02, ...)
+    const sttFormatted = stt.toString().padStart(2, "0");
+
+    // 🎯 Tạo số hóa đơn chuẩn
+    this.form.soHD = `${ma}${sttFormatted}`;
+    console.log(`✅ Số HĐ mới: ${this.form.soHD}`);
+  } catch (err) {
+    console.error("❌ Lỗi tạo số hóa đơn:", err);
+    // fallback tạm
+    this.form.soHD = `${ma}01`;
+  }
+},
+
+ capNhatMaHang() {
+  const tenNCC = (this.form.tenNCC || "").trim();
+  if (!tenNCC) return (this.hang.maHang = "");
+
+  const nhapTheoLo = this.hang.nhapTheoLo;
+  const giaLo = Number(this.hang.giaLo) || 0;
+  const soCaiMotLo = Number(this.hang.soCaiMotLo) || 0;
+  const giaNhap = Number(this.hang.giaNhap) || 0;
+  const loiNhuan = Number(this.hang.loiNhuan) || 0;
+
+  // 🧩 1️⃣ Chữ cái đầu mỗi từ NCC (bỏ dấu, in hoa)
+  const phan1 = this.removeAccents(tenNCC)
+    .split(" ")
+    .filter(w => w)
     .map(w => w[0].toUpperCase())
     .join("");
 
-  this.hang.maHang = `${prefix}_${maNCC}`.slice(0, 12);
+  // 🧩 2️⃣ Hai số cuối năm
+  const phan2 = new Date().getFullYear().toString().slice(-2);
+
+  // 🧩 3️⃣ Giá nhập ×2 (bỏ 3 số cuối)
+  let phan3;
+  if (nhapTheoLo) {
+    const bo000 = Math.floor(giaLo / 1000);
+    phan3 = bo000 * 2;
+  } else {
+    const bo000 = Math.floor(giaNhap / 1000);
+    phan3 = bo000 * 2;
+  }
+
+  // 🧩 4️⃣ Nếu có tick nhập theo lô → số cái / 1 lô, không thì bỏ trống
+  const phan4 = nhapTheoLo ? String(soCaiMotLo) : "";
+
+  // 🧩 5️⃣ Mã giá bán ẩn (chuẩn mới)
+  let giaNhap1Cai = nhapTheoLo ? (giaLo / (soCaiMotLo || 1)) : giaNhap;
+  let giaBan = giaNhap1Cai * (1 + loiNhuan / 100);
+
+  // Làm tròn lên nghìn kế tiếp
+  giaBan = this.lamTronLenNghin(giaBan);
+
+  // Lấy phần ngàn (VD: 53 000 → 53)
+  const base = Math.floor(giaBan / 1000);
+
+  // Cộng X theo độ dài
+  const len = base.toString().length;
+  const cong = len === 1 ? 1 : len === 2 ? 10 : len === 3 ? 100 : 1000;
+
+  // Kết hợp
+  const giaMa = base + cong;
+  const random = Math.floor(Math.random() * 9) + 1;
+  const phan5 = random.toString() + giaMa.toString();
+
+  // 🎯 Mã hoàn chỉnh
+  this.hang.maHang = `${phan1}${phan2}${phan3}${phan4}${phan5}`;
 },
 
+
+
+
+// Khi thay đổi % lợi nhuận → tự tính lại giá bán
+capNhatGiaBanTuPhanTram() {
+  const { giaNhap, loiNhuan, donGia } = this.hang;
+  if (!giaNhap || loiNhuan == null) return;
+
+  let giaMoi = giaNhap * (1 + loiNhuan / 100);
+
+  // 🔹 Làm tròn lên nghìn kế tiếp (VD: 50002 → 51000)
+  giaMoi = this.lamTronLenNghin(giaMoi);
+
+  if (giaMoi !== donGia) this.hang.donGia = giaMoi;
+},
+
+
+
+// Khi thay đổi giá bán → tự tính % lợi nhuận
+capNhatPhanTramTuGiaBan() {
+  const { giaNhap, donGia, loiNhuan } = this.hang;
+  if (!giaNhap || !donGia) return;
+
+  const phanTramMoi = Number((((donGia - giaNhap) / giaNhap) * 100).toFixed(1));
+  if (phanTramMoi !== loiNhuan) this.hang.loiNhuan = phanTramMoi;
+},
+
+
+// Khi thay đổi giá nhập → cập nhật lại % lợi nhuận (nếu đang có giá bán)
+capNhatTuGiaNhap() {
+  const { giaNhap, donGia } = this.hang;
+  if (donGia && giaNhap) {
+    this.hang.loiNhuan = Number((((donGia - giaNhap) / giaNhap) * 100).toFixed(1));
+  }
+}
+,
 
     chonHinhThuc(ht) {
       this.thanhToan.hinhThuc = ht;
@@ -691,14 +932,35 @@ async xuatHoaDonNhap() {
 
 
   },
-  watch: {
-    'hang.tenHang': 'capNhatMaHang',
-    'hang.danhMuc': 'capNhatMaHang',
-    'hang.size': 'capNhatMaHang',
-    'hang.dvt': 'capNhatMaHang',
-    'hang.giaNhap': 'capNhatMaHang',
-    'form.maNCC': 'capNhatMaHang',
-  }
+watch: {
+  'hang.tenHang': 'capNhatMaHang',
+  'hang.soLuong': 'capNhatMaHang',
+  'hang.dvt': 'capNhatMaHang',
+
+  // Khi thay đổi giá nhập → cập nhật giá bán theo % và mã hàng
+  'hang.giaNhap': function() {
+    this.tinhTheoLo(); // ✅ nếu có tick nhập theo lô thì auto tính
+    this.capNhatGiaBanTuPhanTram(); // ✅ chỉ còn chiều này thôi
+    this.capNhatMaHang();
+  },
+
+  // ❌ Bỏ chiều ngược (giá bán → %)
+  // Nếu người dùng nhập giá bán thì không tính lại % nữa
+  'hang.donGia': function() {
+    this.capNhatMaHang(); // chỉ cập nhật mã hàng thôi
+  },
+
+  // Khi đổi % lợi nhuận → cập nhật giá bán theo %
+  'hang.loiNhuan': function() {
+    this.capNhatGiaBanTuPhanTram();
+    this.capNhatMaHang();
+  },
+
+  // Khi đổi NCC → sinh lại mã hàng
+  'form.tenNCC': 'capNhatMaHang'
+}
+
+
 };
 </script>
 
