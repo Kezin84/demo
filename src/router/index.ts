@@ -67,7 +67,7 @@ const router = createRouter({
     {
   path: '/admin/lich-su',
   name: 'History',
-  component: () => import('../views/History.vue'),
+  component: () => import('../views/history.vue'),
   meta: { title: 'Lịch sử hoạt động' },
 },
 {
