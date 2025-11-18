@@ -2750,7 +2750,8 @@
 import * as XLSX from "xlsx";
 import html2canvas from "html2canvas";
 import { nextTick } from "vue"; // ⚡️ Thêm dòng này
-import QRCode from "qrcode";
+import * as QRCode from "qrcode";
+
 
 export default {
   data(){
