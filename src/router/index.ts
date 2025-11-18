@@ -73,7 +73,7 @@ const router = createRouter({
 {
       path: '/admin/ghi-chu',
       name: 'GhiChu',
-      component: () => import('../views/ghiChu.vue'),
+      component: () => import('../views/ghichu.vue'),
       meta: { title: 'Ghi chú & nhắc việc' },
     },
 
