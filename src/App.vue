@@ -1,224 +1,434 @@
 <template>
   <div id="app">
-    <!-- 🌐 Nút mở menu khi màn hình nhỏ -->
-    <button class="btn-toggle" @click="isOpen = !isOpen">☰</button>
+    <!-- 🌐 Nút mở menu responsive -->
+    <button class="btn-toggle" @click="isOpen = !isOpen" :class="{ active: isOpen }">
+      <span class="hamburger">
+        <span class="line"></span>
+        <span class="line"></span>
+        <span class="line"></span>
+      </span>
+    </button>
 
-    <!-- 🧭 SIDEBAR -->
-    <nav class="sidebar" :class="{ open: isOpen }">
-      <div class="sidebar-header">
-        <h3 class="fw-bold text-primary text-center">🛒 TECHDY ADMIN</h3>
-      </div>
+    <!-- 🧭 SIDEBAR PROFESSIONAL -->
+    <nav class="sidebar" :class="{ open: isOpen, 'closed-desktop': !isOpen }">
 
-      <div class="sidebar-menu">
-        <router-link to="/" class="nav-item">🏠 Trang chủ</router-link>
-        <router-link to="/about" class="nav-item">ℹ️ Giới thiệu</router-link>
-        <router-link to="/admin/nhap-hoa-don" class="nav-item">🧾 Nhập hóa đơn</router-link>
-        <router-link to="/admin/hoa-don" class="nav-item">📄 Quản lý hóa đơn</router-link>
-        <router-link to="/admin/nhap-kho" class="nav-item">📦 Nhập kho hàng</router-link>
-        <router-link to="/admin/hoa-don-nhap-kho" class="nav-item">📄 Hóa đơn nhập kho</router-link>
-        <router-link to="/admin/so-thu-chi" class="nav-item">💰 Sổ thu chi</router-link>
-        <router-link to="/admin/thong-ke" class="nav-item">📊 Thống kê tổng hợp</router-link>
+      <div class="sidebar-backdrop"></div>
+      
+      <div class="sidebar-content">
+        <!-- Logo Header -->
+        <div class="sidebar-header">
+          <div class="logo-container">
+            <div class="logo-icon-wrapper">
+              <span class="logo-icon">🛒</span>
+              <div class="logo-glow"></div>
+            </div>
+            <div class="logo-text">
+              <h3 class="brand-name">THỦY KIM</h3>
+              <span class="brand-subtitle">Admin Dashboard</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <div class="sidebar-menu">
+         
+          <div class="menu-section">
+            <span class="section-label">BÁN HÀNG</span>
+            <router-link to="/admin/nhap-hoa-don" class="nav-item">🧾 Nhập hóa đơn</router-link>
+            <router-link to="/admin/hoa-don" class="nav-item">📄 Quản lý hóa đơn</router-link>
+          </div>
+
+          <div class="menu-section">
+            <span class="section-label">KHO HÀNG</span>
+            <router-link to="/admin/nhap-kho" class="nav-item">📦 Nhập kho hàng</router-link>
+            <router-link to="/admin/kho" class="nav-item">📊 Kho hàng</router-link>
+            <router-link to="/admin/hoa-don-nhap-kho" class="nav-item">📋 Hóa đơn nhập kho</router-link>
+          </div>
+
+          <div class="menu-section">
+            <span class="section-label">TÀI CHÍNH & BÁO CÁO</span>
+            <router-link to="/admin/so-thu-chi" class="nav-item">💰 Sổ thu chi</router-link>
+            <router-link to="/admin/thong-ke" class="nav-item">📈 Thống kê tổng hợp</router-link>
+          </div>
+
+          <div class="menu-section">
+            <span class="section-label">QUẢN TRỊ</span>
+            <router-link to="/admin/people" class="nav-item">👥 Khách hàng & NCC</router-link>
+            <router-link to="/admin/lich-su" class="nav-item">🕓 Lịch sử hoạt động</router-link>
+            <router-link to="/admin/ghi-chu" class="nav-item">🗒️ Ghi chú & Nhắc việc</router-link>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="sidebar-footer">
+          <div class="footer-info">
+            <span class="version">v2.0.1</span>
+            <span class="copyright">© 2025 Techdy</span>
+          </div>
+        </div>
       </div>
     </nav>
 
-    <!-- 📄 NỘI DUNG CHÍNH -->
-    <main class="main-content" @click="isOpen = false">
-      <div class="content-wrapper">
-        <router-view />
-      </div>
-    </main>
+    <!-- 📄 MAIN CONTENT AREA - KHÔNG CÓ EVENT -->
+    <main class="main-content" :class="{ 'full-width': !isOpen }">
+  <router-view />
+</main>
+
+
+    <!-- Overlay cho mobile -->
+    <div class="overlay" :class="{ show: isOpen }" @click="isOpen = false"></div>
   </div>
 </template>
 
 <script setup>
 import { ref } from "vue";
-const isOpen = ref(false);
+
+const isOpen = ref(true);
 </script>
 
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+</style>
+
 <style scoped>
-/* ======================
-   ⚙️ LAYOUT CHUNG
-====================== */
 #app {
   display: flex;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background-color: #fff;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
 }
 
-/* ======================
-   📁 SIDEBAR
-====================== */
+/* SIDEBAR */
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
-  width: 240px;
+  width: 280px;
   height: 100vh;
-  background: #fff;
-  border-right: 1px solid #e0e0e0;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+  z-index: 1000;
+
+  /* ✨ Animate mượt bằng transform */
+  transform: translateX(0);
+  transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: transform;
+}
+
+
+.sidebar-backdrop {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+.sidebar-content {
+  position: relative;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 1.2rem 1rem;
-  z-index: 1000;
+  overflow: hidden;
+  z-index: 2;
+}
+
+/* LOGO */
+.sidebar-header {
+  padding: 2rem 1.5rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo-icon-wrapper {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+}
+
+.logo-icon {
+  font-size: 1.8rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.logo-glow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 12px;
+  filter: blur(12px);
+  opacity: 0.6;
+  animation: pulse 2s infinite;
+  pointer-events: none;
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.brand-name {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 1.5px;
+}
+
+.brand-subtitle {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+}
+
+/* MENU */
+.sidebar-menu {
+  flex: 1;
+  padding: 1rem 0;
   overflow-y: auto;
+}
+
+.sidebar-menu::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.menu-section {
+  margin-bottom: 1.5rem;
+  padding: 0 1rem;
+}
+
+.section-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+  padding: 0 0.8rem;
+}
+
+/* NAV ITEMS */
+.nav-item {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 0.3rem;
   transition: all 0.3s ease;
 }
 
-.sidebar-header {
-  text-align: center;
-  margin-bottom: 1rem;
-}
-.sidebar h3 {
-  font-size: 1.1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.sidebar-menu {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ======================
-   🔗 MENU ITEM
-====================== */
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-size: 0.95rem;
-  font-weight: 500;
-  padding: 0.6rem 0.8rem;
-  border-radius: 8px;
-  text-decoration: none;
-  color: #333;
-  margin-bottom: 0.4rem;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
 .nav-item:hover {
-  background-color: #f0f4ff;
-  color: #007bff;
-  transform: translateX(3px);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  transform: translateX(4px);
 }
+
+.nav-item.router-link-active,
 .nav-item.router-link-exact-active {
-  background: #007bff;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.4), rgba(118, 75, 162, 0.4));
   color: white;
   font-weight: 600;
-  box-shadow: 0 2px 6px rgba(0, 123, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  transform: translateX(4px);
 }
 
-/* ======================
-   🧾 MAIN CONTENT
-====================== */
+/* FOOTER */
+.sidebar-footer {
+  padding: 1.2rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footer-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.version {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+}
+
+/* MAIN CONTENT */
 .main-content {
-  margin-left: 240px;
-  flex: 1;
-  width: calc(100vw - 240px);
-  height: 100vh;
-  background-color: #f8f9fb;
+  position: fixed;
+  left: 280px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: #f8fafc;
   overflow-y: auto;
   overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
+
+  /* ✨ Animate theo sidebar */
+  transition: left 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-.content-wrapper {
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: flex-start;
+/* Ẩn sidebar trên desktop khi tắt */
+.sidebar.closed-desktop {
+  transform: translateX(-100%);
 }
 
-/* Scrollbar */
+
+/* Main content full width khi sidebar tắt (desktop) */
+.main-content.full-width {
+  left: 0;
+}
+
 .main-content::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
 }
+
 .main-content::-webkit-scrollbar-thumb {
-  background: #bbb;
-  border-radius: 4px;
+  background: linear-gradient(180deg, #667eea, #764ba2);
+  border-radius: 5px;
 }
 
-/* ======================
-   📱 RESPONSIVE
-====================== */
+/* TOGGLE BUTTON */
+/* TOGGLE BUTTON - dùng cho mọi màn hình */
+.btn-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border: none;
+  border-radius: 14px;
+  z-index: 1100;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+}
 
-/* 💻 Tablet */
+/* Icon hamburger */
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 24px;
+}
+
+.line {
+  width: 100%;
+  height: 2.5px;
+  background: white;
+  border-radius: 2px;
+  transition: all 0.3s;
+}
+
+/* Hiệu ứng X khi mở */
+.btn-toggle.active .line:nth-child(1) {
+  transform: translateY(7.5px) rotate(45deg);
+}
+
+.btn-toggle.active .line:nth-child(2) {
+  opacity: 0;
+}
+
+.btn-toggle.active .line:nth-child(3) {
+  transform: translateY(-7.5px) rotate(-45deg);
+}
+
+/* Overlay mặc định tắt, chỉ bật trên mobile */
+.overlay {
+  display: none;
+}
+
+
+/* ANIMATIONS */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.6; }
+}
+
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+  .sidebar { width: 260px; }
+  .main-content { left: 260px; }
+}
+
 @media (max-width: 992px) {
-  .sidebar {
-    width: 200px;
-  }
-  .main-content {
-    margin-left: 200px;
-    width: calc(100vw - 200px);
-  }
+  .sidebar { width: 240px; }
+  .main-content { left: 240px; }
 }
 
-/* 📱 Mobile ngang */
 @media (max-width: 768px) {
-  .sidebar {
-    position: fixed;
-    left: -240px;
-    top: 0;
-    height: 100%;
-    transition: left 0.3s ease;
-  }
-  .sidebar.open {
-    left: 0;
-  }
+
+  
   .main-content {
-    margin-left: 0;
-    width: 100%;
+    left: 0;
+    width: 100vw;
   }
-  .btn-toggle {
+
+  .overlay {
     display: block;
-  }
-}
-
-/* 📲 Điện thoại nhỏ (≤576px) */
-@media (max-width: 576px) {
-  .btn-toggle {
     position: fixed;
-    top: 10px;
-    left: 10px;
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 0.5rem 0.7rem;
-    border-radius: 6px;
-    z-index: 1100;
-    font-size: 1.2rem;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
   }
-  .sidebar {
-    width: 75%;
-    max-width: 250px;
-  }
-  .nav-item {
-    font-size: 1rem;
-    padding: 0.8rem 1rem;
-  }
-  .sidebar-header h3 {
-    font-size: 1rem;
+
+  .overlay.show {
+    opacity: 1;
+    pointer-events: all;
   }
 }
 
-/* 🧱 Force router-view full width */
-.main-content,
-.main-content > .content-wrapper,
-.main-content > * {
-  width: 100% !important;
-  max-width: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  box-sizing: border-box;
+
+@media (max-width: 576px) {
+  .sidebar { width: 85%; max-width: 320px; }
 }
 </style>

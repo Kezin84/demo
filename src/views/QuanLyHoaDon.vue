@@ -1,200 +1,573 @@
 <template>
-  <div class="container py-4">
-    <h2 class="text-center mb-3 fw-bold text-primary">📄 QUẢN LÝ HÓA ĐƠN</h2>
+  <div class="container-fluid py-4">
+    <h2 class="text-center mb-4 fw-bold" style="color: #2E4C8F;">📄 QUẢN LÝ HÓA ĐƠN</h2>
 
-    <!-- 🔍 Bộ lọc tìm kiếm -->
-    <div class="card p-3 mb-4 shadow-sm">
-      <div class="row g-3">
-        <!-- 🔹 1️⃣ Tìm theo mã khách hàng -->
-        <div class="col-md-3">
-          <label class="form-label fw-bold">Tìm theo MÃ KH</label>
-          <input
-            v-model.trim="filters.maKH"
-            type="text"
-            class="form-control"
-            placeholder="Nhập mã khách hàng..."
-          />
-        </div>
+    <!-- Layout 2 cột: Ô 1 (trái) + Ô 2 (phải) -->
+    <div class="row g-3 mb-4">
+      
+      <!-- ========== Ô 1: BỘ LỌC (TRÁI) ========== -->
+      <div class="col-lg-6">
+        <div class="filter-box p-4 shadow-sm">
+          <h5 class="box-title mb-3">🔧 BỘ LỌC</h5>
+          
+          <!-- Sắp xếp -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">SẮP XẾP</label>
+            <select v-model="filters.sortOrder" class="form-select">
+              <option value="desc">Mới nhất → Cũ nhất</option>
+              <option value="asc">Cũ nhất → Mới nhất</option>
+            </select>
+          </div>
 
-        <!-- 🔹 2️⃣ Tìm theo tên khách hàng -->
-        <div class="col-md-3">
-          <label class="form-label fw-bold">Tìm theo TÊN KHÁCH</label>
-          <input
-            v-model.trim="filters.tenKH"
-            type="text"
-            class="form-control"
-            placeholder="Nhập tên khách hàng..."
-          />
-        </div>
+          <!-- Từ ngày - Đến ngày -->
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label fw-bold">TỪ NGÀY</label>
+              <input v-model="filters.fromDate" type="date" class="form-control" />
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-bold">ĐẾN NGÀY</label>
+              <input v-model="filters.toDate" type="date" class="form-control" />
+            </div>
+          </div>
 
-        <!-- 🔹 3️⃣ Tìm theo mã hóa đơn -->
-        <div class="col-md-3">
-          <label class="form-label fw-bold">Tìm theo MÃ HÓA ĐƠN</label>
-          <input
-            v-model.trim="filters.maHD"
-            type="text"
-            class="form-control"
-            placeholder="Nhập mã hóa đơn..."
-          />
-        </div>
+          <!-- Trạng thái HĐ -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">TRẠNG THÁI HĐ</label>
+            <select v-model="filters.trangThai" class="form-select">
+              <option value="">-- Tất cả --</option>
+              <option value="Mua">Mua</option>
+              <option value="Trả">Trả</option>
+              <option value="Mua & Trả">Mua & Trả</option>
+            </select>
+          </div>
 
-        <!-- 🔹 4️⃣ Tìm theo số hóa đơn -->
-        <div class="col-md-3">
-          <label class="form-label fw-bold">Tìm theo SỐ HÓA ĐƠN</label>
-          <input
-            v-model.trim="filters.soHD"
-            type="text"
-            class="form-control"
-            placeholder="Nhập số hóa đơn..."
-          />
+          <!-- Hình thức thanh toán -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">HÌNH THỨC THANH TOÁN</label>
+            <select v-model="filters.thanhToan" class="form-select">
+              <option value="">-- Tất cả --</option>
+              <option value="Tiền mặt">Tiền mặt</option>
+              <option value="Chuyển khoản">Chuyển khoản</option>
+              <option value="Nợ">Nợ</option>
+            </select>
+          </div>
+
+          <!-- Nút làm mới -->
+          <button class="btn btn-refresh w-100" @click="resetFilters">
+            🔄 LÀM MỚI
+          </button>
         </div>
       </div>
-      <!-- 🔹 5️⃣ Lọc theo ngày và sắp xếp -->
-<div class="row g-3 mt-2">
-  <div class="col-md-3">
-    <label class="form-label fw-bold">TỪ NGÀY</label>
-    <input v-model="filters.fromDate" type="date" class="form-control" />
-  </div>
 
-  <div class="col-md-3">
-    <label class="form-label fw-bold">ĐẾN NGÀY</label>
-    <input v-model="filters.toDate" type="date" class="form-control" />
-  </div>
+      <!-- ========== Ô 2: TÌM KIẾM (PHẢI) ========== -->
+      <div class="col-lg-6">
+        <div class="search-box p-4 shadow-sm">
+          <h5 class="box-title mb-3">🔍 TÌM KIẾM</h5>
 
-  <div class="col-md-3">
-    <label class="form-label fw-bold">SẮP XẾP</label>
-    <select v-model="filters.sortOrder" class="form-select">
-      <option value="desc">Mới nhất → Cũ nhất</option>
-      <option value="asc">Cũ nhất → Mới nhất</option>
-    </select>
-  </div>
+          <!-- Tìm theo Mã KH -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">TÌM THEO MÃ KH</label>
+            <input
+              v-model.trim="filters.maKH"
+              type="text"
+              class="form-control"
+              placeholder="Nhập mã khách hàng..."
+            />
+          </div>
 
-</div>
-<!-- 🔹 6️⃣ Lọc theo Trạng thái và Hình thức thanh toán -->
-<div class="row g-3 mt-2">
-  <div class="col-md-3">
-    <label class="form-label fw-bold">Trạng thái HĐ</label>
-    <select v-model="filters.trangThai" class="form-select">
-      <option value="">-- Tất cả --</option>
-      <option value="Mua">Mua</option>
-      <option value="Trả">Trả</option>
-      <option value="Mua & Trả">Mua & Trả</option>
-    </select>
-  </div>
+          <!-- Tìm theo Tên khách -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">TÌM THEO TÊN KHÁCH</label>
+            <input
+              v-model.trim="filters.tenKH"
+              type="text"
+              class="form-control"
+              placeholder="Nhập tên khách hàng..."
+            />
+          </div>
 
-  <div class="col-md-3">
-    <label class="form-label fw-bold">Hình thức thanh toán</label>
-    <select v-model="filters.thanhToan" class="form-select">
-      <option value="">-- Tất cả --</option>
-      <option value="Tiền mặt">Tiền mặt</option>
-      <option value="Chuyển khoản">Chuyển khoản</option>
-      <option value="Nợ">Nợ</option>
-    </select>
-  </div>
-</div>
+          <!-- Tìm theo Mã HĐ -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">TÌM THEO MÃ HÓA ĐƠN</label>
+            <input
+              v-model.trim="filters.maHD"
+              type="text"
+              class="form-control"
+              placeholder="Nhập mã hóa đơn..."
+            />
+          </div>
 
-      <!-- Nút reset -->
-      <div class="text-end mt-3">
-        <button class="btn btn-secondary" @click="resetFilters">🔄 Làm mới</button>
+          <!-- Tìm theo Số HĐ -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">TÌM THEO SỐ HÓA ĐƠN</label>
+            <input
+              v-model.trim="filters.soHD"
+              type="text"
+              class="form-control"
+              placeholder="Nhập số hóa đơn..."
+            />
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- 🧾 Bảng hóa đơn -->
-   <!-- 🧾 Bảng hóa đơn -->
-<div class="table-responsive">
-  <table class="table table-bordered table-hover align-middle">
-    <thead class="table-primary text-center">
-      <tr>
-        <th>STT</th>
-        <th>MÃ HĐ</th>
-        <th>SỐ HĐ</th>
-        <th>MÃ KH</th>
-        <th>TÊN KHÁCH</th>
-        <th>NGÀY TẠO</th>
-        <th>TRẠNG THÁI</th>
-        <th>TỔNG CỘNG</th>
-        <th>THANH TOÁN</th>
-        <th>GHI CHÚ</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr
-        v-for="(hd, idx) in paginatedHoaDon"
-        :key="hd.ma_hoa_don || hd.MA_HOA_DON"
-        class="text-center hover-row"
-      >
-        <td>{{ (page - 1) * perPage + idx + 1 }}</td>
-        <td>
-  <a
-    href="#"
-    class="link-primary fw-bold"
-    @click.prevent="xuatAnhHoaDonGiay(hd)"
-  >
-    {{ hd.ma_hoa_don || hd.MA_HOA_DON }}
-  </a>
-</td>
-<td>
-  <a
-    href="#"
-    class="link-primary"
-    @click.prevent="xuatAnhHoaDonGiay(hd)"
-  >
-    {{ hd.so_hoa_don || hd.SO_HOA_DON }}
-  </a>
-</td>
+    <!-- Loading Overlay -->
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Đang tải...</span>
+      </div>
+      <p class="mt-2 text-primary fw-bold">Đang tải hóa đơn...</p>
+    </div>
 
-        <td>{{ hd.ma_khach_hang || hd.MA_KHACH_HANG }}</td>
-        <td>{{ hd.ten_khach_hang || hd.TEN_KHACH_HANG }}</td>
-        <td>{{ hd.ngay_tao_duong_lich || hd.NGAY_TAO_DUONG_LICH }}</td>
-        
-        <!-- Cột TRẠNG THÁI -->
-        <td>
-          <span
-            :class="{
-              'text-success fw-bold': trangThai(hd) === 'Mua',
-              'text-danger fw-bold': trangThai(hd) === 'Trả',
-              'text-primary fw-bold': trangThai(hd) === 'Mua & Trả',
-            }"
-          >
-            {{ trangThai(hd) }}
-          </span>
-        </td>
+    <!-- ========== Ô 3: BẢNG HÓA ĐƠN (DƯỚI) ========== -->
+    <div class="table-container shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-header">
+            <tr>
+              <th>STT</th>
+              <th>MÃ HĐ</th>
+              <th>SỐ HĐ</th>
+              <th>MÃ KH</th>
+              <th>TÊN KHÁCH</th>
+              <th>NGÀY TẠO</th>
+              <th>TRẠNG THÁI</th>
+              <th>TỔNG CỘNG</th>
+              <th>THANH TOÁN</th>
+              <th>GHI CHÚ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(hd, idx) in paginatedHoaDon"
+              :key="hd.ma_hoa_don || hd.MA_HOA_DON"
+              class="table-row"
+            >
+              <td class="text-center">{{ (page - 1) * perPage + idx + 1 }}</td>
+              <td class="text-center">
+                <a
+                  href="#"
+                  class="link-invoice fw-bold"
+                  @click.prevent="xuatAnhHoaDonGiay(hd)"
+                >
+                  {{ hd.ma_hoa_don || hd.MA_HOA_DON }}
+                </a>
+              </td>
+              <td class="text-center">
+                <a
+                  href="#"
+                  class="link-invoice"
+                  @click.prevent="xuatAnhHoaDonGiay(hd)"
+                >
+                  {{ hd.so_hoa_don || hd.SO_HOA_DON }}
+                </a>
+              </td>
+              <td class="text-center">{{ hd.ma_khach_hang || hd.MA_KHACH_HANG }}</td>
+              <td>{{ hd.ten_khach_hang || hd.TEN_KHACH_HANG }}</td>
+              <td class="text-center">{{ hd.ngay_tao_duong_lich || hd.NGAY_TAO_DUONG_LICH }}</td>
+              <td class="text-center">
+                <span
+                  :class="{
+                    'status-buy': trangThai(hd) === 'Mua',
+                    'status-return': trangThai(hd) === 'Trả',
+                    'status-both': trangThai(hd) === 'Mua & Trả',
+                  }"
+                >
+                  {{ trangThai(hd) }}
+                </span>
+              </td>
+              <td class="text-end">
+                <strong 
+                  :class="{
+                    'money-positive': (hd.tong_cong || hd.TONG_CONG) >= 0,
+                    'money-negative': (hd.tong_cong || hd.TONG_CONG) < 0
+                  }"
+                >
+                  {{ formatNum(hd.tong_cong || hd.TONG_CONG) }}
+                </strong>
+              </td>
+              <td class="text-center">
+                <span 
+                  class="badge-payment"
+                  :class="{
+                    'badge-cash': (hd.hinh_thuc_thanh_toan || hd.HINH_THUC_THANH_TOÁN) === 'Tiền mặt',
+                    'badge-transfer': (hd.hinh_thuc_thanh_toan || hd.HINH_THUC_THANH_TOÁN) === 'Chuyển khoản',
+                    'badge-debt': (hd.hinh_thuc_thanh_toan || hd.HINH_THUC_THANH_TOÁN) === 'Nợ',
+                  }"
+                >
+                  {{ hd.hinh_thuc_thanh_toan || hd.HINH_THUC_THANH_TOÁN }}
+                </span>
+              </td>
+              <td>{{ hd.ghi_chu || hd.GHI_CHU }}</td>
+            </tr>
 
-        <td class="text-end">{{ formatNum(hd.tong_cong || hd.TONG_CONG) }}</td>
-        <td>{{ hd.hinh_thuc_thanh_toan || hd.HINH_THUC_THANH_TOÁN }}</td>
-        <td>{{ hd.ghi_chu || hd.GHI_CHU }}</td>
-      </tr>
+            <tr v-if="filteredHoaDon.length === 0">
+              <td colspan="10" class="text-center text-muted py-4">
+                Không có hóa đơn nào phù hợp
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-      <tr v-if="filteredHoaDon.length === 0">
-        <td colspan="10" class="text-center text-muted py-3">
-          Không có hóa đơn nào phù hợp
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-
-    <!-- 🔢 Phân trang -->
-    <div class="pagination-wrapper text-center mt-3">
-      <button
-        class="btn btn-outline-primary btn-sm me-2"
-        :disabled="page === 1"
-        @click="prevPage"
-      >
-        ← Trước
-      </button>
-      <span>Trang {{ page }} / {{ totalPages }}</span>
-      <button
-        class="btn btn-outline-primary btn-sm ms-2"
-        :disabled="page === totalPages"
-        @click="nextPage"
-      >
-        Sau →
-      </button>
+      <!-- Phân trang -->
+      <div class="pagination-area py-3">
+        <button
+          class="btn btn-paging"
+          :disabled="page === 1"
+          @click="prevPage"
+        >
+          ← Trước
+        </button>
+        <span class="page-info">Trang {{ page }} / {{ totalPages }}</span>
+        <button
+          class="btn btn-paging"
+          :disabled="page === totalPages"
+          @click="nextPage"
+        >
+          Sau →
+        </button>
+      </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+/* ========== Ô 1 & 2: Filter & Search Boxes ========== */
+.container-fluid {
+  max-width: 1600px;
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 3vw, 3rem);
+  padding-top: 2rem;
+}
+
+.filter-box,
+.search-box {
+  background: #ffffff;
+  border: 2px solid #dde3ee;
+  border-radius: 10px;
+  overflow: hidden;
+  padding: 0; /* bỏ padding, dồn vào body bên trong */
+  
+}
+
+.box-title {
+  background: linear-gradient(135deg, #1a2f63 0%, #13244a 100%);
+  color: #ffffff !important;
+  padding: 14px 20px;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  border-bottom: 3px solid rgba(255, 255, 255, 0.25);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+  border-radius: 10px;
+}
+.filter-box .content,
+.search-box .content {
+  padding: 22px;
+  font-weight: bold;
+}
+
+.form-label {
+  color: #2E4C8F;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.form-control,
+.form-select {
+  border: 1px solid #dde3ee;
+  border-radius: 20px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #2E4C8F;
+  box-shadow: 0 0 0 0.15rem rgba(46, 76, 143, 0.1);
+  outline: none;
+}
+
+/* Nút Làm mới */
+.btn-refresh {
+  background: #2E4C8F;
+  color: white;
+  font-weight: 700;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
+.btn-refresh:hover {
+  background: #1e3a6f;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(46, 76, 143, 0.25);
+}
+
+/* ========== Loading Overlay ========== */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loading-overlay .spinner-border {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-width: 0.35rem;
+  color: #2E4C8F;
+}
+
+/* ========== Ô 3: Bảng hóa đơn ========== */
+.table-container {
+  background: white;
+  border: 2px solid #dde3ee;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.table {
+  margin-bottom: 0;
+}
+
+/* Header bảng - SIÊU SÁNG */
+/* HEADER SIÊU ĐẬM + CHỮ TRẮNG NÉT */
+.table-header {
+  background: linear-gradient(135deg, #1a2f63 0%, #13244a 100%) !important;
+}
+
+.table-header th {
+  padding: 16px 12px;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 900; /* CHỮ ĐẬM HƠN */
+  text-align: center;
+  color: #ffffff !important;
+  text-transform: uppercase;
+  letter-spacing: 1px; /* KẼ GIÃN CHỮ CHO NÉT */
+  vertical-align: middle;
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.4); /* GIÚP CHỮ SÁNG NỔI */
+}
+
+.table-header th:last-child {
+  border-right: none;
+}
+
+/* ===== HEADER BẢNG SIÊU ĐẸP ===== */
+
+/* Nền gradient xanh đậm */
+.table-container table thead {
+  background: linear-gradient(135deg, #1a2f63 0%, #13244a 100%) !important;
+  position: relative;
+}
+
+/* Tạo viền sáng dưới header */
+.table-container table thead::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #4b6cb7, #182848);
+  opacity: 0.9;
+}
+
+/* TH trong suốt để lộ nền */
+.table-container table thead th {
+  background: transparent !important;
+  padding: 16px 12px;
+  border: none;
+  color: #fff !important;
+  font-size: 0.9rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  vertical-align: middle;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.35);
+}
+
+.table-row {
+  transition: all 0.15s ease;
+  background: #ffffff;
+}
+
+.table-row {
+  border-left: 4px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.table-row:hover {
+  background-color: #f2f6ff;
+  border-left: 4px solid #2E4C8F;
+}
+
+
+.table-row td {
+  padding: 14px 12px;
+  font-size: 0.9rem;
+  vertical-align: middle;
+  border-color: #e9ecef;
+  border-bottom: 1px solid #e9ecef;
+}
+
+/* Link hóa đơn */
+.link-invoice {
+  color: #2E4C8F;
+  text-decoration: none;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  position: relative;
+  display: inline-block;
+}
+
+.link-invoice:hover {
+  color: #1e3a6f;
+  text-decoration: underline;
+}
+
+.link-invoice:active {
+  transform: scale(0.96);
+}
+
+/* Số tiền - DƯƠNG = XANH LÁ, ÂM = ĐỎ */
+.money-positive {
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #28a745 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.money-negative {
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #dc3545 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* Badge thanh toán */
+.badge-payment {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+  white-space: nowrap;
+}
+
+.badge-cash {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+}
+
+.badge-transfer {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+}
+
+.badge-debt {
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  color: #000;
+  font-weight: 800;
+}
+
+/* Trạng thái */
+.status-buy {
+  color: #28a745;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 4px;
+  background: #d4edda;
+  display: inline-block;
+}
+
+.status-return {
+  color: #dc3545;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 4px;
+  background: #f8d7da;
+  display: inline-block;
+}
+
+.status-both {
+  color: #2E4C8F;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 4px;
+  background: #E8EEF7;
+  display: inline-block;
+}
+
+/* ========== Phân trang ========== */
+.pagination-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  background: #f8f9fc;
+  border-top: 2px solid #dde3ee;
+}
+
+.btn-paging {
+  background: #2E4C8F;
+  color: white;
+  border: none;
+  padding: 9px 22px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.btn-paging:hover:not(:disabled) {
+  background: #1e3a6f;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(46, 76, 143, 0.3);
+}
+
+.btn-paging:disabled {
+  background: #b0b8c7;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.page-info {
+  font-weight: 700;
+  color: #2E4C8F;
+  font-size: 1rem;
+}
+
+/* ========== Responsive ========== */
+@media (max-width: 991px) {
+  .filter-box,
+  .search-box {
+    margin-bottom: 20px;
+  }
+}
+</style>
 
 <script>
 export default {
@@ -213,6 +586,8 @@ export default {
         sortOrder: "desc",
         trangThai: "", // Mua / Trả / Mua & Trả
         thanhToan: "", // Tiền mặt / Chuyển khoản / Nợ
+        isLoadingDetail: false,
+
       },
       apiUrl:
         "https://script.google.com/macros/s/AKfycbz_vsTrvAjmYq51LTtQhe-nkdOzbMQcpMGslSU8tuSObycF9l5HT7cqYKhJ11uqrpL8/exec",
@@ -674,21 +1049,3 @@ export default {
 };
 </script>
 
-<style scoped>
-.table th,
-.table td {
-  vertical-align: middle;
-}
-.hover-row:hover {
-  background-color: #f3f7ff;
-  cursor: pointer;
-}
-.pagination-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.card label {
-  font-size: 0.9rem;
-}
-</style>

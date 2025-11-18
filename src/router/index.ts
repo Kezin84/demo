@@ -52,8 +52,33 @@ const router = createRouter({
   component: () => import('../views/Stat.vue'),
   meta: { title: 'Thống kê doanh thu' },
 },
+ {
+      path: '/admin/kho',
+      name: 'Kho',
+      component: () => import('../views/Kho.vue'),
+      meta: { title: 'Kho hàng' },
+    },
+     {
+      path: '/admin/people',
+      name: 'People',
+      component: () => import('../views/People.vue'),
+      meta: { title: 'Khách hàng & Nhà cung cấp' },
+    },
+    {
+  path: '/admin/lich-su',
+  name: 'History',
+  component: () => import('../views/History.vue'),
+  meta: { title: 'Lịch sử hoạt động' },
+},
+{
+      path: '/admin/ghi-chu',
+      name: 'GhiChu',
+      component: () => import('../views/GhiChu.vue'),
+      meta: { title: 'Ghi chú & nhắc việc' },
+    },
 
   ],
+
 })
 
 // 🧠 Tự động đổi title tab
