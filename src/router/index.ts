@@ -5,18 +5,6 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/',
-      name: 'home',
-      component: HomeView,
-      meta: { title: 'Trang chủ' },
-    },
-    {
-      path: '/about',
-      name: 'about',
-      component: () => import('../views/AboutView.vue'),
-      meta: { title: 'Giới thiệu' },
-    },
-    {
       path: '/admin/hoa-don',
       name: 'QuanLyHoaDon',
       component: () => import('../views/QuanLyHoaDon.vue'),
