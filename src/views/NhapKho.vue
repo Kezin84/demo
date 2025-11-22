@@ -2837,7 +2837,7 @@ capNhatMaHang() {
     .join('');
 
   // 🎯 Mã hoàn chỉnh (có thêm phần trong ngoặc)
-  this.hang.maHang = `${phan1}${phan2}${phan3}${phan4}${phan5}(${tenVietTat})`;
+  this.hang.maHang = `${phan1}${phan2}${phan3}${phan4} ${phan5}(${tenVietTat})`;
 }
 ,
 

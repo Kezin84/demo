@@ -3064,7 +3064,7 @@ tuSinhMaHang() {
     .join('');
 
   // 🎯 [7] Mã hoàn chỉnh có thêm phần ngoặc tên hàng
-  this.maHang = `${phan1}${phan2}${phan3}${phan4}${phan5}(${tenVietTat})`;
+  this.maHang = `${phan1}${phan2}${phan3}${phan4} ${phan5}(${tenVietTat})`;
 }
 
 ,

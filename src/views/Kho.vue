@@ -886,7 +886,7 @@ taoMaQR() {
         })
         .join("");
 
-      const maMoi = `${phan1}${phan2}${phan3}${phan4}${phan5}(${tenVietTat})`;
+      const maMoi = `${phan1}${phan2}${phan3}${phan4} ${phan5}(${tenVietTat})`;
       this.chiTiet.ma_hang_moi = maMoi;
 
       const gia1LoText = nhapTheoLo ? `${this.formatMoney(giaLo)} (nhập/lô)` : "";

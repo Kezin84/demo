@@ -32,4 +32,30 @@ a,
     grid-template-columns: 1fr 1fr;
     padding: 0 2rem;
   }
+  /* Loading khi chuyển route */
+body.router-loading {
+  cursor: wait;
+  pointer-events: none;
+}
+
+body.router-loading::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #1a2f63, #4b6cb7);
+  animation: loading-bar 1s ease-in-out infinite;
+  z-index: 99999;
+}
+
+@keyframes loading-bar {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
 }
