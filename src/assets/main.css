@@ -32,30 +32,37 @@ a,
     grid-template-columns: 1fr 1fr;
     padding: 0 2rem;
   }
-  /* Loading khi chuyển route */
-body.router-loading {
-  cursor: wait;
-  pointer-events: none;
-}
-
-body.router-loading::after {
+  /* Loading bar khi chuyển route */
+body.router-loading::before {
   content: '';
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #1a2f63, #4b6cb7);
+  background: linear-gradient(90deg, #1a2f63, #4b6cb7, #1a2f63);
+  background-size: 200% 100%;
   animation: loading-bar 1s ease-in-out infinite;
   z-index: 99999;
 }
 
 @keyframes loading-bar {
   0% {
-    transform: translateX(-100%);
+    background-position: 0% 50%;
   }
   100% {
-    transform: translateX(100%);
+    background-position: 200% 50%;
   }
+}
+
+/* Fade transition cho router view */
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }
 }
